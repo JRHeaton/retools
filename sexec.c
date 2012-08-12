@@ -29,6 +29,7 @@ int main(int argc, const char **argv) {
     struct stat     st;
     void            *handle;
     void            (*_exec_point)();
+    unsigned long   offset;
     
     if(argc < 3) {
         printf("usage: %s <dylib> <offset>\n", argv[0]);
@@ -37,6 +38,7 @@ int main(int argc, const char **argv) {
     if(stat(argv[1], &st) != 0)
         _bail("file not found: %s\n", argv[1]);
     
+    offset = strtol(argv[2], NULL, 16);
     handle = dlopen(argv[1], RTLD_NOW);
     for(uint32_t i = 0; i < _dyld_image_count(); ++i) {
         if(!strcmp(argv[1], _dyld_get_image_name(i))) {
@@ -50,7 +52,7 @@ int main(int argc, const char **argv) {
             else
                 data = (unsigned char *)getsectdatafromheader_64((const struct mach_header_64 *)hdr, "__TEXT", "__text", &size);
                         
-            _exec_point = (void (*)())data + slide;
+            _exec_point = (void (*)())data + slide + offset;
 //            printf("_exec_point: %p\n", _exec_point);
             _exec_point();
         }
