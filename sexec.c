@@ -33,6 +33,7 @@ int main(int argc, const char **argv) {
     
     if(argc < 3) {
         printf("usage: %s <dylib> <offset>\n", argv[0]);
+        return 1;
     }
     
     if(stat(argv[1], &st) != 0)
@@ -40,6 +41,9 @@ int main(int argc, const char **argv) {
     
     offset = strtol(argv[2], NULL, 16);
     handle = dlopen(argv[1], RTLD_NOW);
+    if(!handle)
+        _bail("handle eats cock\n");
+    
     for(uint32_t i = 0; i < _dyld_image_count(); ++i) {
         if(!strcmp(argv[1], _dyld_get_image_name(i))) {
             const struct mach_header *hdr = _dyld_get_image_header(i);
